@@ -126,10 +126,11 @@ export const deleteRevisions = functions.firestore.document('tanam/{siteId}/docu
     return Promise.all(promises);
 });
 
-export const deleteFieldReferences = functions.firestore.document('tanam/{siteId}/{contentType}/{fileId}').onDelete(async (snap, context) => {
+export const deleteFieldReferences = functions.firestore.document('tanam/{siteId}/{contentType}/{id}').onDelete(async (snap, context) => {
     const siteId = context.params.siteId;
     const contentType = context.params.contentType;
     if (!['documents', 'files'].some(c => c === contentType)) {
+        // This triggers for all sub collections in the tanam site, but should only act on files and documents
         console.log(`Deleted a ${contentType} document. Nothing to do for this function.`);
         return null;
     }

@@ -1,0 +1,151 @@
+specVersion: v1beta1
+name: tanam
+version: 0.100.0
+author:
+  authorName: Oddbit
+  email: tanam@oddbit.id
+  url: https://github.com/oddbit/tanam
+description:
+  Adds a web CMS to your Firebase.
+license: Apache-2.0
+roles:
+  - role: storage.admin
+    reason: allows the mod to store uploaded images and documents in Cloud Storage
+  - role: datastore.user
+    reason: allows the mod to store all the website information and content
+  - role: firebasedatabase.admin
+    reason: allows the mod to use RTDB as an event pipeline / task queue
+
+params:
+  - param: LOCATION
+    label: Deployment Location
+    description: >-
+      Where should the mod be deployed? (*us-central1, us-east1, europe-west1, europe-west2, asia-east2, asia-northeast1*)
+      Pick a location that is close to your Firestore database.
+
+      See
+      https://firebase.google.com/docs/functions/locations#selecting_regions_for_firestore_and_storage.
+    validationRegex: ^us-central1$|^us-east1$|^europe-west1$|^europe-west2$|^asia-east2$|^asia-northeast1
+    validationErrorMessage: >
+      Invalid location, please pick one of: us-central1, us-east1, europe-west1, europe-west2, asia-east2, asia-northeast1
+    default: us-central1
+
+  - param: TANAM_API_KEY
+    label: Firebase web app API key
+    description: >
+      Paste in your API key for the web app you registered in the Firebase console.
+    required: true
+
+  - param: TANAM_MESSAGING_SENDER_ID
+    label: Messaging sender ID
+    description: >
+      Paste in the messaging sender ID for the web app.
+    required: true
+
+  - param: TANAM_STORAGE_BUCKET
+    label: Storage bucket
+    default: ${STORAGE_BUCKET}
+
+  - param: TANAM_DATABASE_URL
+    label: Database URL
+    default: ${DATABASE_URL}
+
+  - param: TANAM_SUPER_ADMIN
+    label: Super admin user
+    description: >
+      Specify the email of the first super admin that will be given full control over
+      the CMS. This should most likely be your own email. You can add more users and
+      admins later on, once you have logged in to Tanam.
+    required: true
+
+resources:
+
+
+  ## ###############################################
+  ## triggers/documents.ts
+  ##
+  - name: onCreateDocumentRequestRendering
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.create
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+
+  - name: onDeleteDocumentCleanUp
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.delete
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+
+  - name: onUpdateDocumentRequestRendering
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.update
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+
+  - name: saveRevision
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.update
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+
+  - name: deleteRevisions
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.delete
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+
+  - name: deleteFieldReferences
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.delete
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/{contentType}/{id}
+
+  - name: updateDocumentStatusCounter
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.write
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+
+  ## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ## TODO: Find out the format to register a scheduled function
+  ## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  - name: publishScheduledDocuments
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        eventType: providers/cloud.pubsub/eventTypes/topic.publish
+        resource: nil
+
+  ## ###############################################
+  ## triggers/storage.ts
+  ##
+  - name: onUserImageUpload
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        eventType: google.storage.object.delete
+        resource: projects/_/buckets/${TANAM_STORAGE_BUCKET}
+
+  - name: onThemeAssetsFileUpload
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        eventType: google.storage.object.finalize
+        resource: projects/_/buckets/${TANAM_STORAGE_BUCKET}
