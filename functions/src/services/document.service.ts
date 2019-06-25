@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { Document } from '../models';
+import { Document, DocumentStatus } from '../models';
 
 const siteCollection = () => admin.firestore().collection('tanam').doc(process.env.GCLOUD_PROJECT);
 const siteRef = () => admin.database().ref('tanam').child(process.env.GCLOUD_PROJECT);
@@ -69,4 +69,22 @@ export async function addDependency(docId: string, references: string | string[]
   return siteCollection().collection('documents').doc(docId).update({
     dependencies: admin.firestore.FieldValue.arrayUnion(...references),
   } as Document);
+}
+
+export async function publishAllScheduledDocuments() {
+  const unpublishedDocuments = await admin.firestore()
+    .collection('tanam').doc(process.env.GCLOUD_PROJECT)
+    .collection('documents')
+    .where('status', '==', 'scheduled' as DocumentStatus)
+    .where('published', '<', admin.firestore.Timestamp.fromDate(new Date()))
+    .get();
+
+  console.log(`Found ${unpublishedDocuments.docs.length} that are due for publishing`);
+
+  const promises = [];
+  for (const doc of unpublishedDocuments.docs) {
+    promises.push(doc.ref.update({ status: 'published' as DocumentStatus } as Document));
+  }
+
+  return Promise.all(promises);
 }

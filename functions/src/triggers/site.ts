@@ -1,6 +1,7 @@
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import { SiteInformation } from '../models/settings.models';
+import * as documentService from '../services/document.service';
 import { initializeSite } from '../services/site-info.service';
 
 const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
@@ -30,5 +31,12 @@ export const testingSetDefaultData = cloudFunctions.database.ref('setDefaultData
     return Promise.all([
         initializeSite(true),
         snap.ref.remove(),
+    ]);
+});
+
+export const heartbeat = cloudFunctions.pubsub.schedule('every 5 minutes').onRun(async (context) => {
+    console.log(`lub-dub`);
+    return Promise.all([
+        documentService.publishAllScheduledDocuments(),
     ]);
 });
