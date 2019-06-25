@@ -79,6 +79,44 @@ params:
 
 resources:
 
+  
+  ## ###############################################
+  ## triggers/cache.ts
+  ##
+
+  - name: handleCacheTask
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/google.firebase.database/eventTypes/ref.create
+        resource: projects/_/instances/${DATABASE_URL}/refs/tanam/{siteId}/tasks/cache/{action}/{taskId}
+
+
+
+  ## ###############################################
+  ## triggers/document-type.ts
+  ##
+  - name: cleanUpDocumentsOfType
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.delete
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/document-types/{type}
+
+  - name: updateDocumentsStandaloneValue
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.update
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/document-types/{type}
+
+
 
   ## ###############################################
   ## triggers/documents.ts
@@ -88,6 +126,7 @@ resources:
     properties:
       runtime: nodejs8
       eventTrigger:
+        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.create
         resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
 
@@ -96,6 +135,7 @@ resources:
     properties:
       runtime: nodejs8
       eventTrigger:
+        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.delete
         resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
 
@@ -104,7 +144,17 @@ resources:
     properties:
       runtime: nodejs8
       eventTrigger:
+        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.update
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+
+  - name: updateDocumentStatusCounter
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
 
   - name: saveRevision
@@ -112,6 +162,7 @@ resources:
     properties:
       runtime: nodejs8
       eventTrigger:
+        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.update
         resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
 
@@ -120,6 +171,7 @@ resources:
     properties:
       runtime: nodejs8
       eventTrigger:
+        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.delete
         resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
 
@@ -128,27 +180,77 @@ resources:
     properties:
       runtime: nodejs8
       eventTrigger:
+        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.delete
         resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/{contentType}/{id}
 
-  - name: updateDocumentStatusCounter
-    type: firebasemods.v1beta1.function
-    properties:
-      runtime: nodejs8
-      eventTrigger:
-        eventType: providers/cloud.firestore/eventTypes/document.write
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
-
-  ## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ## TODO: Find out the format to register a scheduled function
-  ## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   - name: publishScheduledDocuments
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
       eventTrigger:
-        eventType: providers/cloud.pubsub/eventTypes/topic.publish
-        resource: nil
+        location: ${TANAM_LOCATION}
+        eventType: google.pubsub.topic.publish
+        resource: projects/${PROJECT_ID}/topics/firebase-schedule-publishScheduledDocuments-${TANAM_LOCATION}
+
+
+
+  ## ###############################################
+  ## triggers/file.ts
+  ##
+
+  - name: onDeleteUserFile
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.delete
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/files/{fileId}
+
+  - name: onCreateThemeAssetsFile
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.create
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/assets/{assetId}
+
+  - name: onUpdateThemeAssetsFile
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.update
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/assets/{assetId}
+
+  - name: onDeleteThemeAssetsFile
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.delete
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/assets/{assetId}
+
+
+
+  ## ###############################################
+  ## triggers/site.ts
+  ##
+
+  - name: registerHost
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/google.firebase.database/eventTypes/ref.create
+        resource: projects/_/instances/${DATABASE_URL}/refs/tanam/{siteId}/domains/{hash}
+
+
 
   ## ###############################################
   ## triggers/storage.ts
@@ -158,6 +260,7 @@ resources:
     properties:
       runtime: nodejs8
       eventTrigger:
+        location: ${TANAM_LOCATION}
         eventType: google.storage.object.delete
         resource: projects/_/buckets/${TANAM_STORAGE_BUCKET}
 
@@ -166,5 +269,80 @@ resources:
     properties:
       runtime: nodejs8
       eventTrigger:
+        location: ${TANAM_LOCATION}
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${TANAM_STORAGE_BUCKET}
+
+
+
+  ## ###############################################
+  ## triggers/theme.ts
+  ##
+
+  - name: onUpdateActiveTheme
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.update
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}
+
+  - name: onDeleteThemeDeleteTemplates
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.delete
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}
+
+  - name: onDeleteThemeDeleteAssets
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.delete
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}
+
+  - name: onWriteTemplateUpdateCache
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.write
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/templates/{templateId}
+
+
+
+  ## ###############################################
+  ## triggers/users.ts
+  ##
+  - name: createUser
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/firebase.auth/eventTypes/user.create
+        resource: projects/${PROJECT_ID}
+
+  - name: deleteUser
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/firebase.auth/eventTypes/user.delete
+        resource: projects/${PROJECT_ID}
+
+  - name: updateAuthRoles
+    type: firebasemods.v1beta1.function
+    properties:
+      runtime: nodejs8
+      eventTrigger:
+        location: ${TANAM_LOCATION}
+        eventType: providers/cloud.firestore/eventTypes/document.update
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/users/{uid}
