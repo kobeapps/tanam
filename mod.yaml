@@ -32,23 +32,42 @@ params:
 
   - param: TANAM_API_KEY
     label: Firebase web app API key
-    description: >
-      Paste in your API key for the web app you registered in the Firebase console.
+    description: Paste in the `apiKey` from the web app configuration.
     required: true
 
-  - param: TANAM_MESSAGING_SENDER_ID
-    label: Messaging sender ID
-    description: >
-      Paste in the messaging sender ID for the web app.
+  - param: TANAM_AUTH_DOMAIN
+    label: Firebase web app API key
+    description: Paste in the `authDomain` from the web app configuration.
+    default: ${PROJECT_ID}.firebaseapp.com
+    required: true
+
+  - param: TANAM_DATABASE_URL
+    label: Database URL
+    description: Paste in the `databaseURL` from the web app configuration.
+    default: ${DATABASE_URL}
+    required: true
+
+  - param: TANAM_PROJECT_ID
+    label: Database URL
+    description: Paste in the `projectId` from the web app configuration.
+    default: ${PROJECT_ID}
     required: true
 
   - param: TANAM_STORAGE_BUCKET
     label: Storage bucket
+    description: Paste in the `storageBucket` from the web app configuration.
     default: ${STORAGE_BUCKET}
+    required: true
 
-  - param: TANAM_DATABASE_URL
-    label: Database URL
-    default: ${DATABASE_URL}
+  - param: TANAM_MESSAGING_SENDER_ID
+    label: Messaging sender ID
+    description: Paste in the `messagingSenderId` from the web app configuration.
+    required: true
+
+  - param: TANAM_APP_ID
+    label: App Id
+    description: Paste in the `appId` from the web app configuration.
+    required: true
 
   - param: TANAM_SUPER_ADMIN
     label: Super admin user
