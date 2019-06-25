@@ -4,11 +4,13 @@ import * as functions from 'firebase-functions';
 import * as configService from '../services/config.service';
 import * as siteService from '../services/site-info.service';
 
-export const createUser = functions.auth.user().onCreate(async (firebaseUser) => {
+const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
+
+export const createUser = cloudFunctions.auth.user().onCreate(async (firebaseUser) => {
   const tanamConfig = configService.getConfig();
 
   const tanamConfigRole = tanamConfig.users ? tanamConfig.users[firebaseUser.email] : null;
-  const envRole = firebaseUser.email === process.env.TANAM_OWNER ? 'superAdmin' : null;
+  const envRole = firebaseUser.email === process.env.TANAM_SUPER_ADMIN ? 'superAdmin' : null;
   const initialRole = envRole || tanamConfigRole;
 
   // Use gravatar as default if photoUrl isn't specified in user data
@@ -33,7 +35,7 @@ export const createUser = functions.auth.user().onCreate(async (firebaseUser) =>
   ]);
 });
 
-export const deleteUser = functions.auth.user().onDelete(firebaseUser => {
+export const deleteUser = cloudFunctions.auth.user().onDelete(firebaseUser => {
   console.log(`Deleting account: ${JSON.stringify({ firebaseUser })}`);
   return admin.firestore()
     .collection('tanam').doc(process.env.GCLOUD_PROJECT)
@@ -41,7 +43,7 @@ export const deleteUser = functions.auth.user().onDelete(firebaseUser => {
     .delete();
 });
 
-export const updateAuthRoles = functions.firestore.document('tanam/{siteId}/users/{uid}').onUpdate((change, context) => {
+export const updateAuthRoles = cloudFunctions.firestore.document('tanam/{siteId}/users/{uid}').onUpdate((change, context) => {
   const uid = context.params.uid;
   const userBefore = change.before.data();
   const userAfter = change.after.data();

@@ -1,9 +1,11 @@
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
-import { TanamFile, SiteInformation } from '../models';
+import { SiteInformation, TanamFile } from '../models';
 import * as taskService from '../services/task.service';
 
-export const onDeleteUserFile = functions.firestore.document('tanam/{siteId}/files/{fileId}').onDelete(async (snap, context) => {
+const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
+
+export const onDeleteUserFile = cloudFunctions.firestore.document('tanam/{siteId}/files/{fileId}').onDelete(async (snap, context) => {
     const siteId = context.params.siteId;
     const fileId = context.params.fileId;
     const file = snap.data() as TanamFile;
@@ -23,7 +25,7 @@ export const onDeleteUserFile = functions.firestore.document('tanam/{siteId}/fil
     ])
 });
 
-export const onCreateThemeAssetsFile = functions.firestore.document('tanam/{siteId}/themes/{themeId}/assets/{assetId}').onCreate(async (snap, context) => {
+export const onCreateThemeAssetsFile = cloudFunctions.firestore.document('tanam/{siteId}/themes/{themeId}/assets/{assetId}').onCreate(async (snap, context) => {
     const siteId = context.params.siteId;
     const themeId = context.params.themeId;
     console.log(`Creating file in ${JSON.stringify({ siteId, themeId })}`)
@@ -40,7 +42,7 @@ export const onCreateThemeAssetsFile = functions.firestore.document('tanam/{site
     return taskService.createCache(siteId, `/_/theme/${encodeURIComponent(file.title)}`);
 });
 
-export const onUpdateThemeAssetsFile = functions.firestore.document('tanam/{siteId}/themes/{themeId}/assets/{assetId}').onUpdate(async (change, context) => {
+export const onUpdateThemeAssetsFile = cloudFunctions.firestore.document('tanam/{siteId}/themes/{themeId}/assets/{assetId}').onUpdate(async (change, context) => {
     const siteId = context.params.siteId;
     const themeId = context.params.themeId;
     console.log(`Updating file in ${JSON.stringify({ siteId, themeId })}`)
@@ -57,7 +59,7 @@ export const onUpdateThemeAssetsFile = functions.firestore.document('tanam/{site
     return taskService.updateCache(siteId, `/_/theme/${encodeURIComponent(file.title)}`);
 });
 
-export const onDeleteThemeAssetsFile = functions.firestore.document('tanam/{siteId}/themes/{themeId}/assets/{assetId}').onDelete(async (snap, context) => {
+export const onDeleteThemeAssetsFile = cloudFunctions.firestore.document('tanam/{siteId}/themes/{themeId}/assets/{assetId}').onDelete(async (snap, context) => {
     const siteId = context.params.siteId;
     const themeId = context.params.themeId;
     console.log(`Deleting file in ${JSON.stringify({ siteId, themeId })}`)

@@ -17,7 +17,7 @@ roles:
     reason: allows the mod to use RTDB as an event pipeline / task queue
 
 params:
-  - param: LOCATION
+  - param: TANAM_LOCATION
     label: Deployment Location
     description: >-
       Where should the mod be deployed? (*us-central1, us-east1, europe-west1, europe-west2, asia-east2, asia-northeast1*)

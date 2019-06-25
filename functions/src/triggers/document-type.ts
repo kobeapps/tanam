@@ -2,8 +2,9 @@ import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import { DocumentType } from '../models';
 
+const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
 
-export const cleanUpDocumentsOfType = functions.firestore.document('/tanam/{siteId}/document-types/{type}').onDelete(async (snap, context) => {
+export const cleanUpDocumentsOfType = cloudFunctions.firestore.document('/tanam/{siteId}/document-types/{type}').onDelete(async (snap, context) => {
   console.log('Deleting documents..')
   const documentType = snap.data() as DocumentType;
   const querySnaps = await admin.firestore()
@@ -19,7 +20,7 @@ export const cleanUpDocumentsOfType = functions.firestore.document('/tanam/{site
   return Promise.all(promises);
 });
 
-export const updateDocumentsStandaloneValue = functions.firestore.document('/tanam/{siteId}/document-types/{type}').onUpdate(async (snap, context) => {
+export const updateDocumentsStandaloneValue = cloudFunctions.firestore.document('/tanam/{siteId}/document-types/{type}').onUpdate(async (snap, context) => {
   const documentTypeBefore = snap.before.data() as DocumentType;
   const documentTypeAfter = snap.after.data() as DocumentType;
   if (documentTypeAfter.standalone === documentTypeBefore.standalone) {

@@ -3,7 +3,9 @@ import * as functions from 'firebase-functions';
 import { SiteInformation } from '../models/settings.models';
 import { initializeSite } from '../services/site-info.service';
 
-export const registerHost = functions.database.ref('tanam/{siteId}/domains/{hash}').onCreate(async (snap) => {
+const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
+
+export const registerHost = cloudFunctions.database.ref('tanam/{siteId}/domains/{hash}').onCreate(async (snap) => {
     const promises = [];
 
     const host = snap.val();
@@ -24,7 +26,7 @@ export const registerHost = functions.database.ref('tanam/{siteId}/domains/{hash
     return Promise.all(promises);
 });
 
-export const testingSetDefaultData = functions.database.ref('setDefaultData').onCreate(async (snap) => {
+export const testingSetDefaultData = cloudFunctions.database.ref('setDefaultData').onCreate(async (snap) => {
     return Promise.all([
         initializeSite(true),
         snap.ref.remove(),

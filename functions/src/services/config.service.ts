@@ -1,6 +1,13 @@
 import { TanamConfig } from '../models';
 
-let tanamConfig: TanamConfig;
+let tanamConfig: TanamConfig = {
+    firebaseApp: {
+        apiKey: process.env.TANAM_API_KEY,
+    },
+    users: {
+        [process.env.TANAM_SUPER_ADMIN]: 'superAdmin',
+    }
+};
 export function setConfig(config: TanamConfig) {
     console.log(`[ConfigService:setConfig] ${JSON.stringify({ config })}`)
     tanamConfig = { ...config };

@@ -3,7 +3,9 @@ import * as functions from 'firebase-functions';
 import { Document, DocumentField, DocumentStatus, DocumentType, SiteInformation } from '../models';
 import * as taskService from '../services/task.service';
 
-export const onCreateDocumentRequestRendering = functions.firestore.document('tanam/{siteId}/documents/{documentId}').onCreate(async (snap, context) => {
+const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
+
+export const onCreateDocumentRequestRendering = cloudFunctions.firestore.document('tanam/{siteId}/documents/{documentId}').onCreate(async (snap, context) => {
     const siteId = context.params.siteId;
     const document = snap.data() as Document;
 
@@ -15,7 +17,7 @@ export const onCreateDocumentRequestRendering = functions.firestore.document('ta
     return taskService.createCache(siteId, document.url)
 });
 
-export const onDeleteDocumentCleanUp = functions.firestore.document('tanam/{siteId}/documents/{documentId}').onDelete(async (snap, context) => {
+export const onDeleteDocumentCleanUp = cloudFunctions.firestore.document('tanam/{siteId}/documents/{documentId}').onDelete(async (snap, context) => {
     const siteId = context.params.siteId;
     const documentId = context.params.documentId;
     const document = snap.data() as Document;
@@ -34,7 +36,7 @@ export const onDeleteDocumentCleanUp = functions.firestore.document('tanam/{site
     return Promise.all(promises);
 });
 
-export const onUpdateDocumentRequestRendering = functions.firestore.document('tanam/{siteId}/documents/{documentId}').onUpdate(async (change, context) => {
+export const onUpdateDocumentRequestRendering = cloudFunctions.firestore.document('tanam/{siteId}/documents/{documentId}').onUpdate(async (change, context) => {
     const siteId = context.params.siteId;
     const documentId = context.params.documentId;
     const entryBefore = change.before.data() as Document;
@@ -68,7 +70,7 @@ export const onUpdateDocumentRequestRendering = functions.firestore.document('ta
     return Promise.all(promises);
 });
 
-export const updateDocumentStatusCounter = functions.firestore.document('tanam/{siteId}/documents/{documentId}').onWrite((change, context) => {
+export const updateDocumentStatusCounter = cloudFunctions.firestore.document('tanam/{siteId}/documents/{documentId}').onWrite((change, context) => {
     const siteId = context.params.siteId;
     const entryBefore = change.before.data() || {} as Document;
     const entryAfter = change.after.data() || {} as Document;
@@ -95,13 +97,13 @@ export const updateDocumentStatusCounter = functions.firestore.document('tanam/{
         .update(updates);
 });
 
-export const saveRevision = functions.firestore.document('tanam/{siteId}/documents/{documentId}').onUpdate((change) => {
+export const saveRevision = cloudFunctions.firestore.document('tanam/{siteId}/documents/{documentId}').onUpdate((change) => {
     const entryBefore = change.before.data() as Document;
     console.log(`Saving revision ${entryBefore.revision} of ${change.before.ref.path}`);
     return change.before.ref.collection('revisions').doc(`${entryBefore.id}+${entryBefore.revision}`).set(entryBefore);
 });
 
-export const deleteRevisions = functions.firestore.document('tanam/{siteId}/documents/{documentId}').onDelete(async (snap) => {
+export const deleteRevisions = cloudFunctions.firestore.document('tanam/{siteId}/documents/{documentId}').onDelete(async (snap) => {
     console.log(`Deleting all revisions of ${snap.ref.path}`);
     const revs = await snap.ref.collection('revisions').get();
 
@@ -126,7 +128,7 @@ export const deleteRevisions = functions.firestore.document('tanam/{siteId}/docu
     return Promise.all(promises);
 });
 
-export const deleteFieldReferences = functions.firestore.document('tanam/{siteId}/{contentType}/{id}').onDelete(async (snap, context) => {
+export const deleteFieldReferences = cloudFunctions.firestore.document('tanam/{siteId}/{contentType}/{id}').onDelete(async (snap, context) => {
     const siteId = context.params.siteId;
     const contentType = context.params.contentType;
     if (!['documents', 'files'].some(c => c === contentType)) {
@@ -178,7 +180,7 @@ export const deleteFieldReferences = functions.firestore.document('tanam/{siteId
     return promises;
 });
 
-export const publishScheduledDocuments = functions.pubsub.schedule('every 5 minutes').onRun(async (context) => {
+export const publishScheduledDocuments = cloudFunctions.pubsub.schedule('every 5 minutes').onRun(async (context) => {
     const unpublishedDocuments = await admin.firestore()
         .collection('tanam').doc(process.env.GCLOUD_PROJECT)
         .collection('documents')
