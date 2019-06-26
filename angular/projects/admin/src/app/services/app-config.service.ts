@@ -38,6 +38,7 @@ export class AppConfigService {
       'projectId',
       'storageBucket',
       'messagingSenderId',
+      'appId',
     ]);
   }
 

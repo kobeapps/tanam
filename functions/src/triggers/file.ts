@@ -3,9 +3,8 @@ import * as functions from 'firebase-functions';
 import { SiteInformation, TanamFile } from '../models';
 import * as taskService from '../services/task.service';
 
-const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
 
-export const onDeleteUserFile = cloudFunctions.firestore.document('tanam/{siteId}/files/{fileId}').onDelete(async (snap, context) => {
+export const onDeleteUserFile = functions.handler.firestore.document.onDelete(async (snap, context) => {
     const siteId = context.params.siteId;
     const fileId = context.params.fileId;
     const file = snap.data() as TanamFile;
@@ -25,7 +24,7 @@ export const onDeleteUserFile = cloudFunctions.firestore.document('tanam/{siteId
     ])
 });
 
-export const onCreateThemeAssetsFile = cloudFunctions.firestore.document('tanam/{siteId}/themes/{themeId}/assets/{assetId}').onCreate(async (snap, context) => {
+export const onCreateThemeAssetsFile = functions.handler.firestore.document.onCreate(async (snap, context) => {
     const siteId = context.params.siteId;
     const themeId = context.params.themeId;
     console.log(`Creating file in ${JSON.stringify({ siteId, themeId })}`)
@@ -42,7 +41,7 @@ export const onCreateThemeAssetsFile = cloudFunctions.firestore.document('tanam/
     return taskService.createCache(siteId, `/_/theme/${encodeURIComponent(file.title)}`);
 });
 
-export const onUpdateThemeAssetsFile = cloudFunctions.firestore.document('tanam/{siteId}/themes/{themeId}/assets/{assetId}').onUpdate(async (change, context) => {
+export const onUpdateThemeAssetsFile = functions.handler.firestore.document.onUpdate(async (change, context) => {
     const siteId = context.params.siteId;
     const themeId = context.params.themeId;
     console.log(`Updating file in ${JSON.stringify({ siteId, themeId })}`)
@@ -59,7 +58,7 @@ export const onUpdateThemeAssetsFile = cloudFunctions.firestore.document('tanam/
     return taskService.updateCache(siteId, `/_/theme/${encodeURIComponent(file.title)}`);
 });
 
-export const onDeleteThemeAssetsFile = cloudFunctions.firestore.document('tanam/{siteId}/themes/{themeId}/assets/{assetId}').onDelete(async (snap, context) => {
+export const onDeleteThemeAssetsFile = functions.handler.firestore.document.onDelete(async (snap, context) => {
     const siteId = context.params.siteId;
     const themeId = context.params.themeId;
     console.log(`Deleting file in ${JSON.stringify({ siteId, themeId })}`)

@@ -4,7 +4,7 @@ let tanamConfig: TanamConfig = {
     firebaseApp: {
         apiKey: process.env.TANAM_API_KEY,
         authDomain: process.env.TANAM_AUTH_DOMAIN,
-        databaseURL: process.env.TANAM_DATABASE_URL,
+        databaseURL: `https://${process.env.TANAM_DATABASE_INSTANCE}.firebaseio.com`,
         projectId: process.env.TANAM_PROJECT_ID,
         storageBucket: process.env.TANAM_STORAGE_BUCKET,
         messagingSenderId: process.env.TANAM_MESSAGING_SENDER_ID,

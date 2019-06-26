@@ -4,9 +4,9 @@ import * as sharp from 'sharp';
 import { TanamFile } from '../models';
 import { SHA1 } from 'crypto-js';
 
-const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
 
-export const onUserImageUpload = cloudFunctions.storage.object().onFinalize(async (storageObject) => {
+
+export const onUserImageUpload = functions.handler.storage.object.onFinalize(async (storageObject) => {
   const regexNameMatch = storageObject.name.match(/^\/?tanam\/(.*)\/upload\//);
   if (!regexNameMatch) {
     console.log(`Not a user image upload task: ${storageObject.name} (${storageObject.contentType})`);
@@ -75,7 +75,7 @@ export const onUserImageUpload = cloudFunctions.storage.object().onFinalize(asyn
 });
 
 
-export const onThemeAssetsFileUpload = cloudFunctions.storage.object().onFinalize(async (storageObject) => {
+export const onThemeAssetsFileUpload = functions.handler.storage.object.onFinalize(async (storageObject) => {
   const regexNameMatch = storageObject.name.match(/^\/?tanam\/(.*)\/themes\//);
 
   if (!regexNameMatch) {

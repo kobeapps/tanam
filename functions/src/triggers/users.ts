@@ -4,9 +4,7 @@ import * as functions from 'firebase-functions';
 import * as configService from '../services/config.service';
 import * as siteService from '../services/site-info.service';
 
-const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
-
-export const createUser = cloudFunctions.auth.user().onCreate(async (firebaseUser) => {
+export const createUser = functions.handler.auth.user.onCreate(async (firebaseUser) => {
   const tanamConfig = configService.getConfig();
 
   const tanamConfigRole = tanamConfig.users ? tanamConfig.users[firebaseUser.email] : null;
@@ -35,7 +33,7 @@ export const createUser = cloudFunctions.auth.user().onCreate(async (firebaseUse
   ]);
 });
 
-export const deleteUser = cloudFunctions.auth.user().onDelete(firebaseUser => {
+export const deleteUser = functions.handler.auth.user.onDelete(firebaseUser => {
   console.log(`Deleting account: ${JSON.stringify({ firebaseUser })}`);
   return admin.firestore()
     .collection('tanam').doc(process.env.GCLOUD_PROJECT)
@@ -43,7 +41,7 @@ export const deleteUser = cloudFunctions.auth.user().onDelete(firebaseUser => {
     .delete();
 });
 
-export const updateAuthRoles = cloudFunctions.firestore.document('tanam/{siteId}/users/{uid}').onUpdate((change, context) => {
+export const updateAuthRoles = functions.handler.firestore.document.onUpdate((change, context) => {
   const uid = context.params.uid;
   const userBefore = change.before.data();
   const userAfter = change.after.data();

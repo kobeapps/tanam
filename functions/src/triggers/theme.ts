@@ -3,9 +3,7 @@ import * as functions from 'firebase-functions';
 import { Document, SiteInformation, TanamFile } from '../models';
 import * as taskService from '../services/task.service';
 
-const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
-
-export const onUpdateActiveTheme = cloudFunctions.firestore.document('tanam/{siteId}').onUpdate(async (change, context) => {
+export const onUpdateActiveTheme = functions.handler.firestore.document.onUpdate(async (change, context) => {
   const siteId = context.params.siteId;
   const siteInfoBefore = change.before.data() as SiteInformation;
   const siteInfoAfter = change.after.data() as SiteInformation;
@@ -55,7 +53,7 @@ export const onUpdateActiveTheme = cloudFunctions.firestore.document('tanam/{sit
   return Promise.all(promises);
 });
 
-export const onDeleteThemeDeleteTemplates = cloudFunctions.firestore.document('tanam/{siteId}/themes/{themeId}').onDelete(async (snap) => {
+export const onDeleteThemeDeleteTemplates = functions.handler.firestore.document.onDelete(async (snap) => {
   console.log(`Deleting all templates for theme ${snap.data().title} (${snap.data().id})`);
   const templates = await snap.ref.collection('templates').get();
 
@@ -80,7 +78,7 @@ export const onDeleteThemeDeleteTemplates = cloudFunctions.firestore.document('t
   return Promise.all(promises);
 });
 
-export const onDeleteThemeDeleteAssets = cloudFunctions.firestore.document('tanam/{siteId}/themes/{themeId}').onDelete(async (snap) => {
+export const onDeleteThemeDeleteAssets = functions.handler.firestore.document.onDelete(async (snap) => {
   console.log(`Deleting all assets for theme ${snap.data().title} (${snap.data().id})`);
   const assets = await snap.ref.collection('assets').get();
 
@@ -105,7 +103,7 @@ export const onDeleteThemeDeleteAssets = cloudFunctions.firestore.document('tana
   return Promise.all(promises);
 });
 
-export const onWriteTemplateUpdateCache = cloudFunctions.firestore.document('tanam/{siteId}/themes/{themeId}/templates/{templateId}').onWrite(async (change, context) => {
+export const onWriteTemplateUpdateCache = functions.handler.firestore.document.onWrite(async (change, context) => {
   const siteId = context.params.siteId;
   const themeId = context.params.themeId;
   const templateId = context.params.themeId;

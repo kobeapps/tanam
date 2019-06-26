@@ -3,8 +3,6 @@ import * as functions from 'firebase-functions';
 import * as https from 'https';
 import { SiteInformation } from '../models';
 
-const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
-
 /**
  * Send a request to either purge or heat the CDN
  *
@@ -39,7 +37,7 @@ function _makeRequest(action: 'PURGE' | 'GET', host: string, path: string) {
     });
 }
 
-export const handleCacheTask = cloudFunctions.database.ref('tanam/{siteId}/tasks/cache/{action}/{taskId}').onCreate(async (snap, context) => {
+export const handleCacheTask = functions.handler.database.ref.onCreate(async (snap, context) => {
     const siteId = context.params.siteId;
     const action = context.params.action;
     const url = snap.val() as string;

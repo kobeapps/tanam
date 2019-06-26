@@ -5,16 +5,18 @@ author:
   authorName: Oddbit
   email: tanam@oddbit.id
   url: https://github.com/oddbit/tanam
-description:
+description:  >-
   Adds a web CMS to your Firebase.
 license: Apache-2.0
 roles:
   - role: storage.admin
-    reason: allows the mod to store uploaded images and documents in Cloud Storage
+    reason: Tanam is using cloud storage for binary files
   - role: datastore.user
-    reason: allows the mod to store all the website information and content
+    reason: Tanam is storing web pages and site information in Firestore
   - role: firebasedatabase.admin
-    reason: allows the mod to use RTDB as an event pipeline / task queue
+    reason: Tanam is using RTDB as an event pipeline / task queue
+  - role: firebaseauth.admin
+    reason: Tanam will manage users and roles
 
 params:
   - param: TANAM_LOCATION
@@ -30,27 +32,27 @@ params:
       Invalid location, please pick one of: us-central1, us-east1, europe-west1, europe-west2, asia-east2, asia-northeast1
     default: us-central1
 
+  - param: TANAM_PROJECT_ID
+    label: Project ID
+    description: Paste in the `projectId` from the web app configuration.
+    default: ${PROJECT_ID}
+    required: true
+
   - param: TANAM_API_KEY
     label: Firebase web app API key
     description: Paste in the `apiKey` from the web app configuration.
     required: true
 
   - param: TANAM_AUTH_DOMAIN
-    label: Firebase web app API key
+    label: Firebase auth domain
     description: Paste in the `authDomain` from the web app configuration.
     default: ${PROJECT_ID}.firebaseapp.com
     required: true
 
-  - param: TANAM_DATABASE_URL
-    label: Database URL
-    description: Paste in the `databaseURL` from the web app configuration.
-    default: ${DATABASE_URL}
-    required: true
-
-  - param: TANAM_PROJECT_ID
-    label: Database URL
-    description: Paste in the `projectId` from the web app configuration.
-    default: ${PROJECT_ID}
+  - param: TANAM_DATABASE_INSTANCE
+    label: Database instance
+    description: Name of the Firebase Realtime Database instance to use
+    default: ${DATABASE_INSTANCE}
     required: true
 
   - param: TANAM_STORAGE_BUCKET
@@ -88,10 +90,10 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/google.firebase.database/eventTypes/ref.create
-        resource: projects/_/instances/${DATABASE_URL}/refs/tanam/{siteId}/tasks/cache/{action}/{taskId}
+        resource: projects/_/instances/${TANAM_DATABASE_INSTANCE}/refs/tanam/{siteId}/tasks/cache/{action}/{taskId}
 
 
 
@@ -102,19 +104,19 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.delete
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/document-types/{type}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/document-types/{type}
 
   - name: updateDocumentsStandaloneValue
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.update
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/document-types/{type}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/document-types/{type}
 
 
 
@@ -125,73 +127,73 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.create
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
 
   - name: onDeleteDocumentCleanUp
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.delete
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
 
   - name: onUpdateDocumentRequestRendering
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.update
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
 
   - name: updateDocumentStatusCounter
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.write
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
 
   - name: saveRevision
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.update
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
 
   - name: deleteRevisions
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.delete
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/documents/{documentId}
 
   - name: deleteFieldReferences
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.delete
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/{contentType}/{id}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/{contentType}/{id}
 
   - name: heartbeat
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: google.pubsub.topic.publish
-        resource: projects/${PROJECT_ID}/topics/firebase-schedule-heartbeat-${TANAM_LOCATION}
+        resource: projects/${TANAM_PROJECT_ID}/topics/firebase-schedule-heartbeat-${TANAM_LOCATION}
 
 
 
@@ -203,37 +205,37 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.delete
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/files/{fileId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/files/{fileId}
 
   - name: onCreateThemeAssetsFile
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.create
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/assets/{assetId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/assets/{assetId}
 
   - name: onUpdateThemeAssetsFile
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.update
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/assets/{assetId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/assets/{assetId}
 
   - name: onDeleteThemeAssetsFile
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.delete
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/assets/{assetId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/assets/{assetId}
 
 
 
@@ -245,10 +247,10 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/google.firebase.database/eventTypes/ref.create
-        resource: projects/_/instances/${DATABASE_URL}/refs/tanam/{siteId}/domains/{hash}
+        resource: projects/_/instances/${TANAM_DATABASE_INSTANCE}/refs/tanam/{siteId}/domains/{hash}
 
 
 
@@ -259,8 +261,8 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: google.storage.object.delete
         resource: projects/_/buckets/${TANAM_STORAGE_BUCKET}
 
@@ -268,8 +270,8 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${TANAM_STORAGE_BUCKET}
 
@@ -283,37 +285,37 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.update
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}
 
   - name: onDeleteThemeDeleteTemplates
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.delete
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}
 
   - name: onDeleteThemeDeleteAssets
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.delete
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}
 
   - name: onWriteTemplateUpdateCache
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.write
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/templates/{templateId}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/themes/{themeId}/templates/{templateId}
 
 
 
@@ -324,25 +326,25 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/firebase.auth/eventTypes/user.create
-        resource: projects/${PROJECT_ID}
+        resource: projects/${TANAM_PROJECT_ID}
 
   - name: deleteUser
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/firebase.auth/eventTypes/user.delete
-        resource: projects/${PROJECT_ID}
+        resource: projects/${TANAM_PROJECT_ID}
 
   - name: updateAuthRoles
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      location: ${TANAM_LOCATION}
       eventTrigger:
-        location: ${TANAM_LOCATION}
         eventType: providers/cloud.firestore/eventTypes/document.update
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/users/{uid}
+        resource: projects/${TANAM_PROJECT_ID}/databases/(default)/documents/tanam/{siteId}/users/{uid}

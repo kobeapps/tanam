@@ -4,9 +4,7 @@ import { SiteInformation } from '../models/settings.models';
 import * as documentService from '../services/document.service';
 import { initializeSite } from '../services/site-info.service';
 
-const cloudFunctions = functions.region(process.env.TANAM_LOCATION || 'us-central1');
-
-export const registerHost = cloudFunctions.database.ref('tanam/{siteId}/domains/{hash}').onCreate(async (snap) => {
+export const registerHost = functions.handler.database.ref.onCreate(async (snap) => {
     const promises = [];
 
     const host = snap.val();
@@ -27,14 +25,14 @@ export const registerHost = cloudFunctions.database.ref('tanam/{siteId}/domains/
     return Promise.all(promises);
 });
 
-export const testingSetDefaultData = cloudFunctions.database.ref('setDefaultData').onCreate(async (snap) => {
+export const testingSetDefaultData = functions.handler.database.ref.onCreate(async (snap) => {
     return Promise.all([
         initializeSite(true),
         snap.ref.remove(),
     ]);
 });
 
-export const heartbeat = cloudFunctions.pubsub.schedule('every 5 minutes').onRun(async (context) => {
+export const heartbeat = functions.pubsub.schedule('every 5 minutes').onRun(async (context) => {
     console.log(`lub-dub`);
     return Promise.all([
         documentService.publishAllScheduledDocuments(),
