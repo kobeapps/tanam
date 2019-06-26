@@ -26,8 +26,8 @@ const app = express();
 export const tanam = functions.https.onRequest(app);
 
 const CACHE_CONFIG = {
-  s_max_age: 60 * 5, // 60 * 60 * 24,
-  max_age: 60 * 10
+  s_max_age: 60 * 60 * 24 * 7, // One week of server cache
+  max_age: 60 * 10 // 10 minutes of browser cache
 };
 
 export const initializeApp = configService.setConfig;
