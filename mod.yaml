@@ -5,6 +5,7 @@ author:
   authorName: Oddbit
   email: tanam@oddbit.id
   url: https://github.com/oddbit/tanam
+billingRequired: true
 description:  >-
   Adds a web CMS to your Firebase.
 license: Apache-2.0
@@ -32,12 +33,6 @@ params:
       Invalid location, please pick one of: us-central1, us-east1, europe-west1, europe-west2, asia-east2, asia-northeast1
     default: us-central1
 
-  - param: TANAM_PROJECT_ID
-    label: Project ID
-    description: Paste in the `projectId` from the web app configuration.
-    default: ${PROJECT_ID}
-    required: true
-
   - param: TANAM_API_KEY
     label: Firebase web app API key
     description: Paste in the `apiKey` from the web app configuration.
@@ -53,6 +48,12 @@ params:
     label: Database instance
     description: Name of the Firebase Realtime Database instance to use
     default: ${DATABASE_INSTANCE}
+    required: true
+
+  - param: TANAM_PROJECT_ID
+    label: Project ID
+    description: Paste in the `projectId` from the web app configuration.
+    default: ${PROJECT_ID}
     required: true
 
   - param: TANAM_STORAGE_BUCKET
@@ -90,6 +91,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/google.firebase.database/eventTypes/ref.create
@@ -104,6 +106,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.delete
@@ -113,6 +116,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.update
@@ -127,6 +131,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.create
@@ -136,6 +141,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.delete
@@ -145,6 +151,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.update
@@ -154,6 +161,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
@@ -163,6 +171,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.update
@@ -172,6 +181,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.delete
@@ -181,6 +191,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.delete
@@ -190,6 +201,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: google.pubsub.topic.publish
@@ -205,6 +217,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.delete
@@ -214,6 +227,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.create
@@ -223,6 +237,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.update
@@ -232,6 +247,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.delete
@@ -247,6 +263,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/google.firebase.database/eventTypes/ref.create
@@ -261,6 +278,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: google.storage.object.delete
@@ -270,6 +288,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: google.storage.object.finalize
@@ -285,6 +304,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.update
@@ -294,6 +314,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.delete
@@ -303,6 +324,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.delete
@@ -312,6 +334,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
@@ -326,6 +349,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/firebase.auth/eventTypes/user.create
@@ -335,6 +359,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/firebase.auth/eventTypes/user.delete
@@ -344,6 +369,7 @@ resources:
     type: firebasemods.v1beta1.function
     properties:
       runtime: nodejs8
+      sourceDirectory: functions/dist
       location: ${TANAM_LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.update
