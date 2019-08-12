@@ -1,5 +1,4 @@
 import { ITanamBase, TanamBase } from './base';
-import { TanamDocumentType } from './document-type.models';
 
 export type DocumentStatus = 'published' | 'unpublished' | 'scheduled';
 
@@ -34,7 +33,7 @@ export class TanamDocument extends TanamBase implements ITanamDocument {
   constructor(json: ITanamDocument) {
     super(json);
     this.documentType = json.documentType;
-    this.data = !!json.data ? {...json.data} : {};
+    this.data = !!json.data ? { ...json.data } : {};
     this.title = json.title || '';
     this.url = !!json.url ? TanamDocument._normalizeUrl(json.url) : '/';
     this.canonicalUrl = !!json.canonicalUrl
@@ -52,18 +51,10 @@ export class TanamDocument extends TanamBase implements ITanamDocument {
       : json.published;
   }
 
-  static fromDocumentType(documentType: TanamDocumentType) {
-    return new TanamDocument({
-      documentType: documentType.id,
-      standalone: documentType.standalone,
-      status: documentType.documentStatusDefault,
-    } as ITanamDocument);
-  }
-
   get status() {
     if (!this.published) {
       return 'unpublished';
-    } else if (this.published.getTime() > Date.now()) {
+    } else if (this.published > Date.now()) {
       return 'scheduled';
     } else {
       return 'published';

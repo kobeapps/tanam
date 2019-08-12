@@ -2,7 +2,7 @@ import { FocusMonitor } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ElementRef, HostBinding, Input, OnDestroy, OnInit, Optional, Self, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
-import { MatFormFieldControl } from '@angular/material';
+import { MatFormFieldControl } from '@angular/material/form-field';
 import { MAT_DATETIME_FORMATS } from '@mat-datetimepicker/core';
 import { firestore } from 'firebase/app';
 import * as moment from 'moment';
@@ -129,8 +129,8 @@ export class DateTimeComponent implements MatFormFieldControl<firestore.Timestam
     this.describedBy = ids.join(' ');
   }
 
-  writeValue(timestamp: firestore.Timestamp): void {
-    this.timestamp = timestamp && timestamp.toDate();
+  writeValue(timestamp: Date): void {
+    this.timestamp = timestamp;
   }
 
   registerOnChange(callback: (val: firestore.Timestamp) => void): void {

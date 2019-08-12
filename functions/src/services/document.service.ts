@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { ITanamDocument, TanamSite } from '../models';
+import { ITanamDocument, TanamSite, TanamDocument } from '../models';
 import * as siteInfoService from './site-info.service';
 import { TanamHttpRequest } from '../models/http_request.model';
 
@@ -17,13 +17,15 @@ export async function getDocumentById(docId: string): Promise<ITanamDocument> {
   return querySnap.empty ? null : querySnap.docs[0].data() as ITanamDocument;
 }
 
-export async function getDocumentForRequest(request: TanamHttpRequest): Promise<ITanamDocument> {
+export async function getDocumentForRequest(request: TanamHttpRequest): Promise<TanamDocument> {
   console.log(`[document.service.getDocumentByUrl] ${request.toString()}`);
   const siteInfo = await siteInfoService.getSiteInfoFromDomain(request.hostname);
   if (!siteInfo) {
+    console.log(`No site found for hostname: ${JSON.stringify(request.hostname)}`);
     return null;
   }
 
+  console.log(`Getting published URL ${request.url} for ${siteInfo.toString()}`);
   const querySnap = await admin.firestore()
     .collection('tanam').doc(siteInfo.id)
     .collection('documents')
@@ -37,7 +39,7 @@ export async function getDocumentForRequest(request: TanamHttpRequest): Promise<
     return null;
   }
 
-  return querySnap.docs[0].data() as ITanamDocument;
+  return new TanamDocument(querySnap.docs[0].data() as ITanamDocument);
 }
 
 
